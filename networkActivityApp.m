@@ -225,7 +225,7 @@ classdef networkActivityApp < matlab.apps.AppBase
             app.SliderImageStack.SliderStep = [1/(imgNumber-1), 1/(imgNumber-1)];
             app.SliderImageStack.Min = 1;
             app.SliderImageStack.Max = imgNumber;
-            s = imshow(app.movieData(:,:,1), [0 9000], 'Parent', app.AxesStack);
+            s = imshow(app.movieData(:,:,1), [0 1200], 'Parent', app.AxesStack);
             app.curSlice = s;
             app.AxesStack.Title.String = regexprep(app.curStak, '_', ' ');
             hold(app.AxesPlot, 'on');
@@ -329,7 +329,10 @@ classdef networkActivityApp < matlab.apps.AppBase
                 nRoi = size(tempRoi,1);
                 roiIntensities = zeros(nRoi, nFrames);
                 for roi = 1:nRoi
-                    roiIntensities(roi,:) = mean(mean(imgData(tempMask{roi,1}, tempMask{roi,2}, :))); % 5 is the radius, needs to be set as option
+                    %roiIntensities(roi,:) = mean(mean(imgData(tempMask{roi,1}, tempMask{roi,2}, :))); % 5 is the radius, needs to be set as option
+                    % NEED TO CHECK VERSION!!! RAW AND COLUMNS SEEMS TO BE
+                    % FLIPPED IN THE MOVIE
+                    roiIntensities(roi,:) = mean(mean(imgData(tempMask{roi,2}(1):tempMask{roi,2}(3), tempMask{roi,1}(1):tempMask{roi,1}(2), :)));
                 end
                 % Detect the minimum intensity in 10 region of the recordings to calculate the deltaF/F0
                 frameDividers = [1:round(nFrames / 10):nFrames, nFrames];
@@ -499,7 +502,8 @@ classdef networkActivityApp < matlab.apps.AppBase
         function updatePlot(app)
             % First get the data
             imgID = contains(app.imgT.CellID, app.curStak);
-            tempData = app.imgT.DetrendData{imgID};
+            %tempData = app.imgT.DetrendData{imgID};
+            tempData = app.imgT.RawIntensity{imgID};
             if isempty(tempData)
                 return
             end
